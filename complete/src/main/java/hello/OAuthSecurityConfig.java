@@ -79,10 +79,8 @@ public class OAuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // Setting the filter for the URL "/google/login".
                 .addFilterAt(filter(), BasicAuthenticationFilter.class)
-                .csrf()
-                .ignoringAntMatchers("**/websocket")
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-    }
+                .csrf().disable();
+                 }
 
     /*This method for creating filter for OAuth authentication.*/
     private OAuth2ClientAuthenticationProcessingFilter filter() {
