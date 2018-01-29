@@ -67,7 +67,7 @@ public class OAuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 // Starts authorizing configurations.
                 .authorizeRequests()
                 // Ignore the "/" and "/index.html"
-                .antMatchers("/", "/**.html", "/**.js").permitAll()
+                .antMatchers("/","/auth/login", "/**.html", "/**.js").permitAll()
                 // Authenticate all remaining URLs.
                 .anyRequest().fullyAuthenticated()
                 .and()
