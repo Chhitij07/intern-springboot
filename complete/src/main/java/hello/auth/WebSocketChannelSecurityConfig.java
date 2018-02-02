@@ -35,6 +35,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
+import groovy.util.logging.Log;
+
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
@@ -95,11 +97,13 @@ public class WebSocketChannelSecurityConfig extends AbstractWebSocketMessageBrok
 				String username = null;
 				if (authToken != null) {
 					username = tokenUtils.getUsernameFromToken(authToken);
+					log.info("The username is"+username);
 				}
 
 				if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 					UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 					if (tokenUtils.validateToken(authToken, userDetails)) {
+						
 						UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 								userDetails, null, userDetails.getAuthorities());
 						// authentication.setDetails(new
@@ -115,6 +119,8 @@ public class WebSocketChannelSecurityConfig extends AbstractWebSocketMessageBrok
 						} else if (accessor.getMessageType() == SimpMessageType.SUBSCRIBE) {
 							userRegistry.onApplicationEvent(new SessionSubscribeEvent(this, (Message<byte[]>) message,
 									(Principal) authentication));
+							
+							log.info("Subscribed");
 						} else if (accessor.getMessageType() == SimpMessageType.UNSUBSCRIBE) {
 							userRegistry.onApplicationEvent(new SessionUnsubscribeEvent(this, (Message<byte[]>) message,
 									(Principal) authentication));
