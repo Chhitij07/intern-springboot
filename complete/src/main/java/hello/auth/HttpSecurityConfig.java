@@ -38,8 +38,8 @@ public class HttpSecurityConfig {
 
 				List<GrantedAuthority> grantedAuthority = AuthorityUtils.createAuthorityList("ROLE_USER");
 				
-				if(username.equals("user")){
-					return new User("user", "password", true, true, true, true,
+				if(username.equals("user") || username.equals("username")){
+					return new User(username, "password", true, true, true, true,
 							grantedAuthority);
 				}else{
 					throw new UsernameNotFoundException("could not find the user '" + username + "'");

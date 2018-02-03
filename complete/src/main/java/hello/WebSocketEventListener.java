@@ -1,5 +1,6 @@
 package hello;
 
+import java.security.Principal;
 import java.util.HashSet;
 import hello.auth.HttpSecurityConfig;
 import java.util.Random;
@@ -8,8 +9,10 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import hello.auth.DisplayUser;
 import hello.auth.WebSocketChannelSecurityConfig;
@@ -421,25 +424,20 @@ public class WebSocketEventListener {
 			61.0,
 			60.0,
 			60.0};
-	static int i=23;
-	static int interval=1;
+	int i=23;
+	int interval=1;
 	static String name="";
+
 	WebSocketChannelSecurityConfig user=new WebSocketChannelSecurityConfig();
     @Scheduled(fixedDelay=1000)
     public void publishUpdates(){
     	
-    	
-    	if(interval==timeStamp[i])
+    	if(interval==10)//change it to interval==timestamp[i] to send updates as per real time
     	{
-    		if(user.userRegistry()!=null)
-    		log.info(user.userRegistry());
-    		else
-        	{
-        		log.info("No users");
-        	}
     		interval=1;
+    	String vehicle = "ka02ad7436";
     	String text="{\"content\":\""+name+"\",\"Lat\":\""+n3[i]+"\",\"Lng\":\""+n4[i]+"\"}";
-        template.convertAndSend("/topic/greetings", text);
+        template.convertAndSend("/topic/"+vehicle, text);
         if(i<299)
         {
         	i++;
