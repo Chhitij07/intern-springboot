@@ -17,10 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import hello.auth.DisplayUser;
-import hello.auth.WebSocketChannelSecurityConfig;
 
-import hello.HttpHandshakeInterceptor;
+
 @Component
 public class WebSocketEventListener {
 
@@ -435,7 +433,6 @@ public class WebSocketEventListener {
 	Users users=new Users();
 	
 
-	WebSocketChannelSecurityConfig user=new WebSocketChannelSecurityConfig();
     @Scheduled(fixedDelay=1000)
     public void publishUpdates(){
     	String username=users.get("username");

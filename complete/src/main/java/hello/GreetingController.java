@@ -19,10 +19,7 @@ public class GreetingController {
     @MessageMapping("/hello")
     public Greeting greeting(SimpMessageHeaderAccessor  headerAccessor,Authentication authentication) throws Exception {
         //Thread.sleep(1000); // simulated delay
-        WebSocketEventListener obj=new WebSocketEventListener();
-        user.add(authentication.getName(),headerAccessor.getSessionId());
         
-		log.info("At /hello "+authentication.getDetails()+","+headerAccessor.getSessionId());
         return new Greeting("Hello !");
     }
     
