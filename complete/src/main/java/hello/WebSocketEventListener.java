@@ -7,6 +7,9 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import hello.auth.DisplayUser;
 import hello.auth.WebSocketChannelSecurityConfig;
+
+import hello.HttpHandshakeInterceptor;
 @Component
 public class WebSocketEventListener {
 
@@ -427,17 +432,22 @@ public class WebSocketEventListener {
 	int i=23;
 	int interval=1;
 	static String name="";
+	Users users=new Users();
+	
 
 	WebSocketChannelSecurityConfig user=new WebSocketChannelSecurityConfig();
     @Scheduled(fixedDelay=1000)
     public void publishUpdates(){
+    	String username=users.get("username");
     	
+    	//String sessionId=users.get("username");
     	if(interval==10)//change it to interval==timestamp[i] to send updates as per real time
     	{
     		interval=1;
     	String vehicle = "ka02ad7436";
-    	String text="{\"content\":\""+name+"\",\"Lat\":\""+n3[i]+"\",\"Lng\":\""+n4[i]+"\"}";
-        template.convertAndSend("/topic/"+vehicle, text);
+    	String text="{\"content\":\"hello\",\"Lat\":\""+n3[i]+"\",\"Lng\":\""+n4[i]+"\"}";
+        template.convertAndSendToUser(username,"/queue/location/", text);//, createHeaders(sessionId));
+        //template.convertAndSend("/topic/location/",text);
         if(i<299)
         {
         	i++;
@@ -451,5 +461,13 @@ public class WebSocketEventListener {
     	{
     		interval++;
     	}
+    	
+    }
+    private MessageHeaders createHeaders(String sessionId) {
+        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+        headerAccessor.setSessionId(sessionId);
+        headerAccessor.setLeaveMutable(true);
+        log.info("Header="+headerAccessor.getMessageHeaders());
+        return headerAccessor.getMessageHeaders();
     }
 }

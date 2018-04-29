@@ -16,6 +16,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -41,8 +42,7 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
 import groovy.util.logging.Log;
 import groovyjarjarantlr.collections.List;
-import hello.WebSocketEventListener;
-
+import hello.*;
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
@@ -61,6 +61,8 @@ public class WebSocketChannelSecurityConfig extends AbstractWebSocketMessageBrok
 	private DefaultSimpUserRegistry userRegistry = new DefaultSimpUserRegistry();
 	private DefaultUserDestinationResolver resolver = new DefaultUserDestinationResolver(userRegistry);
 
+	Users users=new Users();
+	
 	@Bean
 	@Primary
 	public SimpUserRegistry userRegistry() {
@@ -85,7 +87,6 @@ public class WebSocketChannelSecurityConfig extends AbstractWebSocketMessageBrok
 				// ||
 				// StompCommand.SUBSCRIBE.equals(accessor.getHeader("stompCommand")))
 				// {
-
 				String authToken = null;
 
 				if (StompCommand.SUBSCRIBE.equals(accessor.getHeader("stompCommand"))) {
@@ -95,6 +96,8 @@ public class WebSocketChannelSecurityConfig extends AbstractWebSocketMessageBrok
 					// authToken = headers.toString();//
 					// .get(tokenHeader.toUpperCase());
 					log.info("WS Subscribe headers: " + authToken);
+					
+					users.add((accessor.getUser()).getName(),accessor.getUser().getName());
 					
 				}
 				try {
@@ -124,30 +127,20 @@ public class WebSocketChannelSecurityConfig extends AbstractWebSocketMessageBrok
 						if (accessor.getMessageType() == SimpMessageType.CONNECT) {
 							userRegistry.onApplicationEvent(new SessionConnectedEvent(this, (Message<byte[]>) message,
 									(Principal) authentication));
+							
 							} else if (accessor.getMessageType() == SimpMessageType.SUBSCRIBE) {
 							userRegistry.onApplicationEvent(new SessionSubscribeEvent(this, (Message<byte[]>) message,
 									(Principal) authentication));
-							log.info(username);
-							log.info("Subscribed");
-							Map<String,String> user=new HashMap<String,String>();
-							user.put(username, "Subscribed");
-							userList.add(user);
-						
+							
 						} else if (accessor.getMessageType() == SimpMessageType.UNSUBSCRIBE) {
 							userRegistry.onApplicationEvent(new SessionUnsubscribeEvent(this, (Message<byte[]>) message,
 									(Principal) authentication));
-							Map<String,String> user=new HashMap<String,String>();
-							user.put(username, "Subscribed");
-							userList.remove(user);
-						
+								
 						} else if (accessor.getMessageType() == SimpMessageType.DISCONNECT) {
 							userRegistry.onApplicationEvent(new SessionDisconnectEvent(this, (Message<byte[]>) message,
 									accessor.getSessionId(), CloseStatus.NORMAL));
 							Map<String,String> user=new HashMap<String,String>();
 							user.put(username, "Subscribed");
-							userList.remove(user);
-							log.info("Disconnected");
-							log.info(userList);
 						}
 
 					}
